@@ -8,7 +8,7 @@
 #define WeakSelf(type) __weak typeof(type) weak##type = type
 
 #import "ViewController.h"
-
+#import "View.h"
 @interface ViewController ()
 
 @end
@@ -25,8 +25,19 @@
 //    [self queueSuspendAndresume];
 //   [self queueGroupEnterAndLeave];
 //   [self semaphore];
-    [self dispatchAfter];
+//    [self dispatchAfter];
+    
+    [self createContentView];
+    
 }
+-(void)createContentView
+{
+    View *view = [[View alloc] initWithFrame:CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height)];
+    [self.view addSubview:view];
+}
+
+
+
 //创建队列
 -(void)createQueue
 {
@@ -144,45 +155,7 @@
      */
     
 }
-//栅栏操作（并行队列可以和栅栏异步操作实现高效的数据访问和文件访问）
--(void)barrierAsync
-{
-    
-    WeakSelf(self);
-    weakself.a = 5;
-    dispatch_queue_t concurrentQueueT = dispatch_queue_create("com.tiankong.GCDDemo", DISPATCH_QUEUE_CONCURRENT);
-    dispatch_async(concurrentQueueT, ^{
-        NSLog(@"读取第一次a == %d",weakself.a);
-    });
-    dispatch_async(concurrentQueueT, ^{
-        NSLog(@"读取第二次a == %d",weakself.a);
-        
-    });
-    dispatch_async(concurrentQueueT, ^{
-        NSLog(@"读取第三次a == %d",weakself.a);
-    });
-    
-    //    dispatch_async(concurrentQueueT, ^{//这么写，读取的值不能确定，
-    //        a = 8;
-    //        NSLog(@"写入操作a = 8");
-    //    });
-    dispatch_barrier_async(concurrentQueueT, ^{
-        weakself.a = 8;
-        NSLog(@"写入a = 8");
-    });
-    dispatch_async(concurrentQueueT, ^{
-        
-        NSLog(@"读取第四次a == %d",weakself.a);
-    });
-    dispatch_async(concurrentQueueT, ^{
-        NSLog(@"读取第五次a == %d",weakself.a);
-    });
-    dispatch_async(concurrentQueueT, ^{
-        NSLog(@"读取第六次a == %d",weakself.a);
-    });
 
-    
-}
 //队列暂停和重新开始(成对出现)
 -(void)queueSuspendAndresume
 {
